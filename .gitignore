@@ -1,0 +1,13 @@
+data/
+
+node_modules/
+
+stats.html
+
+src/semantic/*
+!src/semantic/src/
+src/semantic/src/*
+!src/semantic/src/theme.config
+!src/semantic/src/site/
+
+src/config.js
