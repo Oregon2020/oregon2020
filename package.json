@@ -13,9 +13,8 @@
   "license": "",
   "dependencies": {
     "connected-react-router": "^4.3.0",
-    "crossfilter2": "^1.4.6",
     "d3": "^5.5.0",
-    "dc": "^3.0.6",
+    "d3-sankey": "^0.7.1",
     "immutable": "^4.0.0-rc.9",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",

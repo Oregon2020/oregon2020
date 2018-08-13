@@ -10,6 +10,7 @@ import {
 } from 'semantic-ui-react'
 
 import Header from './Header'
+import Tabs from './Tabs'
 
 const Layout = (props) => {
     const { isPageLoading } = props
@@ -27,8 +28,8 @@ const Layout = (props) => {
                     </GridColumn>
                 </GridRow>
                 <GridRow id="ContentRow">
-                    <Segment basic textAlign="center" style={{ width: '100%' }}>
-                        Coming soon...
+                    <Segment basic style={{ width: '100%' }}>
+                        <Tabs />
                     </Segment>
                 </GridRow>
             </Grid>
