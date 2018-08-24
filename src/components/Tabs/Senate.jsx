@@ -14,6 +14,25 @@ const FOLLOW_THE_MONEY_CATEGORIES = {
 
 const BILLS = {}
 const BILLS_DROPDOWN_OPTIONS = []
+const BILLS_OF_INTEREST = [
+    'HB 4155',
+    'HB 4145',
+    'HJR 203',
+    'HB 2355',
+    'HB 3464',
+    'HB 3391',
+    'SB 558',
+    'SB 3',
+    'HB 2004',
+    'SB 1547',
+    'SB 1532',
+    'SB 932',
+    'SB 478',
+    'SB 454',
+    'HB 2307',
+    'SB 941',
+    'HB 2177'
+]
 
 Object.values(OR_SENATE).forEach((candidate) => {
     candidate.bills.forEach((bill) => {
@@ -30,64 +49,6 @@ Object.values(OR_SENATE).forEach((candidate) => {
         }
     })
 })
-
-// const FINANCE = {
-//     industry: {},
-//     sector: {},
-//     contributor: {}
-// }
-
-// const SANKEY_DATA = {
-//     nodes: [],
-//     links: []
-// }
-//
-// Object.values(OR_SENATE).forEach((candidate) => {
-//     SANKEY_DATA.nodes.push({ name: `${candidate.firstName} ${candidate.lastName}`, type: 'candidate' })
-//     const candidateNodeIdx = SANKEY_DATA.nodes.length - 1
-
-//     Object.entries(FOLLOW_THE_MONEY_CATEGORIES).forEach(([code, { label, accessKey, nameField }]) => {
-//         const category = FINANCE[label]
-//         candidate.finance[code].forEach((record) => {
-//             const amount = parseFloat(record.Total_$.Total_$)
-//             if (category[record[accessKey].id]) {
-//                 category[record[accessKey].id].total += amount
-//                 if (code === 'd-ccg') {
-//                     SANKEY_DATA.links.push({
-//                         source: candidateNodeIdx,
-//                         target: category[record[accessKey].id].nodeIdx,
-//                         value: amount
-//                     })
-//                 }
-//             } else {
-//                 let target
-//                 if (code === 'd-ccg') {
-//                     SANKEY_DATA.nodes.push({ name: record[accessKey][nameField], type: 'sector' })
-//                     target = SANKEY_DATA.nodes.length - 1
-//                     SANKEY_DATA.links.push({
-//                         source: candidateNodeIdx,
-//                         target,
-//                         value: amount
-//                     })
-//                 }
-//                 if (code === 'd-cci') {
-//                     SANKEY_DATA.nodes.push({ name: record[accessKey][nameField], type: 'industry' })
-//                     target = SANKEY_DATA.nodes.length - 1
-//                     SANKEY_DATA.links.push({
-//                         source: candidateNodeIdx,
-//                         target,
-//                         value: amount
-//                     })
-//                 }
-//                 category[record[accessKey].id] = {
-//                     total: amount,
-//                     name: record[accessKey][nameField],
-//                     nodeIdx: target
-//                 }
-//             }
-//         })
-//     })
-// })
 
 class Senate extends React.Component {
     constructor(props) {
@@ -117,40 +78,44 @@ class Senate extends React.Component {
 
         for (let i = source.length; i--;) {
             const [candidateId, candidate] = source[i]
-            if (filter && filter.type === 'bills' && !candidate.bills.filter(b => filter.bills.indexOf(b.billId) > -1 && b.vote === 'Y').length) {
-                continue
-            }
-            data.nodes.push(
-                { name: `${candidate.firstName} ${candidate.lastName}`, type: 'candidate', id: candidateId }
-            )
-            const candidateNodeIdx = data.nodes.length - 1
-
-            Object.entries(FOLLOW_THE_MONEY_CATEGORIES).forEach(([code, { accessKey, nameField }]) => {
-                candidate.finance[code].forEach((record) => {
-                    const amount = parseFloat(record.Total_$.Total_$)
-                    if (code === 'd-ccg') {
-                        if (
-                            !filter ||
-                            filter.type !== 'sector' ||
-                            (filter.type === 'sector' && filter.id === record[accessKey].id)
-                        ) {
-                            const sectorName = record[accessKey][nameField]
-                            let target = data.nodes.findIndex(v => v.name === sectorName)
-                            if (target === -1) {
-                                data.nodes.push(
-                                    { name: record[accessKey][nameField], type: 'sector', id: record[accessKey].id }
-                                )
-                                target = data.nodes.length - 1
-                            }
-                            data.links.push({
-                                source: candidateNodeIdx,
-                                target,
-                                value: amount
-                            })
-                        }
+            if (!filter || filter.type !== 'bills' || candidate.bills.filter(b => filter.bills.indexOf(b.billId) > -1 && b.vote === 'Y').length) {
+                data.nodes.push(
+                    {
+                        id: candidateId,
+                        name: `${candidate.firstName} ${candidate.lastName}`,
+                        type: 'candidate',
+                        photo: candidate.photo
                     }
+                )
+                const candidateNodeIdx = data.nodes.length - 1
+
+                Object.entries(FOLLOW_THE_MONEY_CATEGORIES).forEach(([code, { accessKey, nameField }]) => {
+                    candidate.finance[code].forEach((record) => {
+                        const amount = parseFloat(record.Total_$.Total_$)
+                        if (code === 'd-ccg') {
+                            if (
+                                !filter ||
+                                filter.type !== 'sector' ||
+                                (filter.type === 'sector' && filter.id === record[accessKey].id)
+                            ) {
+                                const sectorName = record[accessKey][nameField]
+                                let target = data.nodes.findIndex(v => v.name === sectorName)
+                                if (target === -1) {
+                                    data.nodes.push(
+                                        { name: record[accessKey][nameField], type: 'sector', id: record[accessKey].id }
+                                    )
+                                    target = data.nodes.length - 1
+                                }
+                                data.links.push({
+                                    source: candidateNodeIdx,
+                                    target,
+                                    value: amount
+                                })
+                            }
+                        }
+                    })
                 })
-            })
+            }
         }
         return data
     }

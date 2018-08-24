@@ -30,8 +30,8 @@ export default {
 
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'js/[name].js',
-        sourceMapFilename: 'js/[name].js.map',
+        filename: 'js/[name]-[hash].js',
+        sourceMapFilename: 'js/[name]-[hash].js.map',
         publicPath: (
             MODE === '"development"' ? 'http://localhost:3000/' : undefined
         ),
@@ -70,7 +70,7 @@ export default {
                     ]
             },
             {
-                test: /\.(jpeg|jpg|gif|png|woff|woff2|ttf|eot|otf|svg|geojson)$/,
+                test: /\.(jpeg|jpg|gif|png|woff|woff2|ttf|eot|otf|svg)$/,
                 use: [
                     {
                         loader: 'file-loader',

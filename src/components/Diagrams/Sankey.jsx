@@ -1,5 +1,5 @@
 import {
-    format as d3Format, scaleOrdinal, schemeCategory10, select
+    format as d3Format, event, scaleOrdinal, schemeCategory10, select
 } from 'd3'
 import { sankey as d3Sankey, sankeyLinkHorizontal } from 'd3-sankey'
 
@@ -15,8 +15,8 @@ const chart = ({
     container,
     data,
     size: { width, height },
-    nodeWidth = 15,
-    nodePadding = 10,
+    nodeWidth = 50,
+    nodePadding = 40,
     onNodeClick
 }) => {
     select(container).select('svg').remove()
@@ -30,7 +30,7 @@ const chart = ({
     const { nodes, links } = d3Sankey()
         .nodeWidth(nodeWidth)
         .nodePadding(nodePadding)
-        .extent([[1, 1], [width - 1, height - 5]])({
+        .extent([[1, 1], [width - 1, height - 25]])({
             nodes: data.nodes.map(d => Object.assign({}, d)),
             links: data.links.map(d => Object.assign({}, d))
         })
@@ -39,19 +39,49 @@ const chart = ({
     const color = name => scale(name.replace(/ .*/, ''))
     const format = d => `$${d3Format(',.0f')(d)}`
 
+    const infoPopup = select('#d3Tooltip')
+
     svg.append('g')
         .attr('stroke', '#000')
         .selectAll('rect')
-        .data(nodes)
+        .data(nodes.filter(d => !d.photo))
         .enter()
-        .append('rect')
-        .attr('x', d => d.x0)
-        .attr('y', d => d.y0)
-        .attr('height', d => d.y1 - d.y0)
-        .attr('width', d => d.x1 - d.x0)
+        .append('circle')
+        .attr('cx', d => (d.x0 < width / 2 ? d.x1 - 21 : d.x0 + 21))
+        .attr('cy', d => (d.y0 + d.y1) / 2)
+        .attr('r', 20)
         .attr('fill', d => color(d.name))
         .on('click', onNodeClick)
         .style('cursor', 'pointer')
+
+    svg.append('g')
+        .attr('stroke', '#000')
+        .selectAll('rect')
+        .data(nodes.filter(d => d.photo))
+        .enter()
+        .append('image')
+        .attr('xlink:href', d => d.photo)
+        .attr('x', d => (d.x0 < width / 2 ? d.x1 - 41 : d.x0 + 41))
+        .attr('y', d => ((d.y0 + d.y1) / 2) - 20)
+        .attr('width', 40)
+        .attr('height', 40)
+        .on('click', onNodeClick)
+        .style('cursor', 'pointer')
+        .on('mouseover', (d) => {
+            infoPopup
+                .transition()
+                .duration(200)
+                .style('opacity', 0.9)
+            infoPopup.html(`<br/>${d.name}`)
+                .style('left', `${event.pageX}px`)
+                .style('top', `${event.pageY - 28}px`)
+        })
+        .on('mouseout', () => {
+            infoPopup
+                .transition()
+                .duration(500)
+                .style('opacity', 0)
+        })
 
     const link = svg.append('g')
         .attr('fill', 'none')
