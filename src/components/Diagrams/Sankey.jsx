@@ -114,9 +114,6 @@ const chart = ({
         .attr('stroke', d => `url(#${d.uid})`)
         .attr('stroke-width', d => Math.max(1, d.width))
 
-    link.append('title')
-        .text(d => `${d.source.name} → ${d.target.name}\n${format(d.value)}`)
-
     svg.append('g')
         .style('font', '10px sans-serif')
         .selectAll('text')

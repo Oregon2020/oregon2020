@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-    Button, Dropdown, FormField, Segment, Table
+    Button, Checkbox, Dropdown, Form, Grid, Header, List, Table
 } from 'semantic-ui-react'
 
 import OR_SENATE from '../../data/or_senate.json'
@@ -39,11 +39,12 @@ Object.values(OR_SENATE).forEach((candidate) => {
         const {
             billId, billNumber, office, title
         } = bill
-        if (!BILLS[billId]) {
+        if (BILLS_OF_INTEREST.indexOf(billNumber) > -1 && !BILLS[billId]) {
             BILLS[billId] = {
                 billNumber,
                 office,
-                title
+                title,
+                vote: null
             }
             BILLS_DROPDOWN_OPTIONS.push({ text: title, value: billId })
         }
@@ -55,7 +56,8 @@ class Senate extends React.Component {
         super(props)
 
         this.state = {
-            bills: Object.values(BILLS).sort((r1, r2) => r1.billNumber > r2.billNumber)
+            bills: BILLS,
+            searchedBills: []
         }
     }
 
@@ -78,7 +80,11 @@ class Senate extends React.Component {
 
         for (let i = source.length; i--;) {
             const [candidateId, candidate] = source[i]
-            if (!filter || filter.type !== 'bills' || candidate.bills.filter(b => filter.bills.indexOf(b.billId) > -1 && b.vote === 'Y').length) {
+            if (
+                !filter ||
+                filter.type !== 'bills' ||
+                candidate.bills.filter(b => filter.bills[b.billId] && b.vote === filter.bills[b.billId]).length
+            ) {
                 data.nodes.push(
                     {
                         id: candidateId,
@@ -134,53 +140,146 @@ class Senate extends React.Component {
         })
     }
 
+    handleBillVoteChange = (billId, value) => {
+        this.setState((state) => {
+            state.bills[billId].vote = value
+            return state
+        })
+    }
+
+    filterByBills = () => {
+        const bills = {}
+        Object
+            .entries(this.state.bills)
+            .forEach(([billId, { vote }]) => {
+                if (vote) {
+                    bills[billId] = vote
+                }
+            })
+        if (Object.keys(bills).length) {
+            this.renderSankey({ type: 'bills', bills })
+        } else if (this.state.hasFilter) {
+            this.renderSankey()
+        }
+    }
+
     render() {
         return (
-            <Segment basic>
-                <Button
-                    primary
-                    floated="left"
-                    disabled={!this.state.hasFilter}
-                    onClick={() => this.renderSankey()}
-                >
-                    Clear filter
-                </Button>
-                <div
-                    ref={(c) => { this.sankeyContainer = c }}
-                    style={{ height: 'auto', width: 1200 }}
-                />
-
-                <FormField inline>
-                    <label><b>Filter by Bills:</b>&nbsp;</label>
-                    <Dropdown
-                        multiple
-                        search
-                        selection
-                        options={BILLS_DROPDOWN_OPTIONS}
-                        onChange={(e, { value }) => this.renderSankey({ type: 'bills', bills: value })}
+            <Grid padded relaxed stackable>
+                <Grid.Column width={11}>
+                    <Header floated="left" size="medium">Click on a candidate or donor to filter the results by that selected entity</Header>
+                    <Button
+                        primary
+                        floated="right"
+                        disabled={!this.state.hasFilter}
+                        onClick={() => this.renderSankey()}
+                    >
+                        Clear filter
+                    </Button>
+                    {}
+                    <div
+                        ref={(c) => { this.sankeyContainer = c }}
+                        style={{ height: 'auto', width: 1200, marginTop: 50 }}
                     />
-                </FormField>
-                <Table>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>
-                                Bill Number
-                            </Table.HeaderCell>
-                            <Table.HeaderCell>
-                                Title
-                            </Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {Object.entries(this.state.bills).map(([billId, { billNumber, title }]) => (
-                            <Table.Row key={billId}>
-                                <Table.Cell>{billNumber}</Table.Cell>
-                                <Table.Cell>{title}</Table.Cell>
+                </Grid.Column>
+
+                <Grid.Column width={5}>
+                    <Header>How to filter by bill?</Header>
+                    <List ordered>
+                        <List.Item>
+                            First find the bills you are interested in
+                        </List.Item>
+                        <List.Item>
+                            Then adjust the votes to those bills
+                        </List.Item>
+                        <List.Item>
+                            Finally click on <b>&quot;Filter&quot;</b> button to see candidates who voted according to your selected
+                            criteria
+                        </List.Item>
+                    </List>
+                    <Form>
+                        <Form.Group inline>
+                            <Form.Field>
+                                <label><b>Find Bills:</b>&nbsp;</label>
+                                <Dropdown
+                                    multiple
+                                    search
+                                    selection
+                                    options={BILLS_DROPDOWN_OPTIONS}
+                                    onChange={(e, { value }) => this.setState({ searchedBills: value })}
+                                />
+                            </Form.Field>
+                            <Form.Field>
+                                <Button primary onClick={this.filterByBills}>Filter</Button>
+                            </Form.Field>
+                        </Form.Group>
+                    </Form>
+                    <Table>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>
+                                    Bill Number
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    Title
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    Vote:
+                                </Table.HeaderCell>
                             </Table.Row>
-                        ))}
-                    </Table.Body>
-                </Table>
-            </Segment>
+                        </Table.Header>
+                        <Table.Body>
+                            {Object
+                                .entries(this.state.bills)
+                                .filter(([billId]) => this.state.searchedBills.length === 0 || this.state.searchedBills.indexOf(billId) > -1)
+                                .map(([billId, { billNumber, title, vote }]) => (
+                                    <Table.Row key={billId}>
+                                        <Table.Cell>{billNumber}</Table.Cell>
+                                        <Table.Cell>{title}</Table.Cell>
+                                        <Table.Cell>
+                                            <Form>
+                                                <Form.Group inline>
+                                                    <Form.Field>
+                                                        <Checkbox
+                                                            radio
+                                                            label="Yea"
+                                                            checked={vote === 'Y'}
+                                                            onChange={() => this.handleBillVoteChange(billId, 'Y')}
+                                                        />
+                                                    </Form.Field>
+                                                    <Form.Field>
+                                                        <Checkbox
+                                                            radio
+                                                            label="Nay"
+                                                            checked={vote === 'N'}
+                                                            onChange={() => this.handleBillVoteChange(billId, 'N')}
+                                                        />
+                                                    </Form.Field>
+                                                    {vote ?
+                                                        (
+                                                            <Form.Field>
+                                                                <Button
+                                                                    icon="remove"
+                                                                    color="red"
+                                                                    circular
+                                                                    size="mini"
+                                                                    onClick={() => this.handleBillVoteChange(billId, null)}
+                                                                />
+                                                            </Form.Field>
+                                                        ) :
+                                                        (
+                                                            <div style={{ width: 20 }} />
+                                                        )
+                                                    }
+                                                </Form.Group>
+                                            </Form>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                ))}
+                        </Table.Body>
+                    </Table>
+                </Grid.Column>
+            </Grid>
         )
     }
 }
