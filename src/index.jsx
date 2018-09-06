@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import ReactGA from 'react-ga'
 
+import 'c3/c3.css'
+
 import CONFIG from './config'
 import App from './App'
 

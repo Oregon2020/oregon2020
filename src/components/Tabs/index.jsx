@@ -1,11 +1,11 @@
 import React from 'react'
 import { Tab } from 'semantic-ui-react'
 
-import Senate from './Senate'
+import US_HOUSE_DATA from '../../data/us_house.json'
+import Overview from './Overview'
 
 const panes = [
-    { menuItem: 'OR Senate', render: () => <Tab.Pane><Senate /></Tab.Pane> },
-    { menuItem: 'OR House', render: () => <Tab.Pane>Under construction...</Tab.Pane> }
+    { menuItem: 'US House', render: () => <Tab.Pane><Overview data={US_HOUSE_DATA} /></Tab.Pane> }
 ]
 
 const Tabs = () => <Tab panes={panes} />

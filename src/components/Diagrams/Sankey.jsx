@@ -1,7 +1,14 @@
 import {
-    format as d3Format, event, scaleOrdinal, schemeCategory10, select
+    format as d3Format,
+    event,
+    scaleOrdinal,
+    schemeCategory10,
+    select
 } from 'd3'
-import { sankey as d3Sankey, sankeyLinkHorizontal } from 'd3-sankey'
+import {
+    sankey as d3Sankey,
+    sankeyLinkHorizontal
+} from 'd3-sankey'
 
 const guid = () => {
     const _p8 = (i) => {
@@ -17,6 +24,7 @@ const chart = ({
     size: { width, height },
     nodeWidth = 50,
     nodePadding = 40,
+    getPopupContent = () => {},
     onNodeClick
 }) => {
     select(container).select('svg').remove()
@@ -72,7 +80,8 @@ const chart = ({
                 .transition()
                 .duration(200)
                 .style('opacity', 0.9)
-            infoPopup.html(`<br/>${d.name}`)
+            infoPopup
+                .html(getPopupContent(d))
                 .style('left', `${event.pageX}px`)
                 .style('top', `${event.pageY - 28}px`)
         })

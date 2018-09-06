@@ -12,6 +12,12 @@ const FOLLOW_THE_MONEY_CATEGORIES = {
     'd-eid': { label: 'contributor', accessKey: 'Contributor', nameField: 'Contributor' }
 }
 
+const CANDIDATES_OF_INTEREST = [
+    '46654',     // Arnie Roblan
+    '10706',     // Ginny Burdick
+    '46683',     // Mark Hass
+]
+
 const BILLS = {}
 const BILLS_DROPDOWN_OPTIONS = []
 const BILLS_OF_INTEREST = [
@@ -34,22 +40,25 @@ const BILLS_OF_INTEREST = [
     'HB 2177'
 ]
 
-Object.values(OR_SENATE).forEach((candidate) => {
-    candidate.bills.forEach((bill) => {
-        const {
-            billId, billNumber, office, title
-        } = bill
-        if (BILLS_OF_INTEREST.indexOf(billNumber) > -1 && !BILLS[billId]) {
-            BILLS[billId] = {
-                billNumber,
-                office,
-                title,
-                vote: null
+Object
+    .values(OR_SENATE)
+    .filter(candidate => CANDIDATES_OF_INTEREST.indexOf(candidate.candidateId) > -1)
+        .forEach((candidate) => {
+        candidate.bills.forEach((bill) => {
+            const {
+                billId, billNumber, office, title
+            } = bill
+            if (BILLS_OF_INTEREST.indexOf(billNumber) > -1 && !BILLS[billId]) {
+                BILLS[billId] = {
+                    billNumber,
+                    office,
+                    title,
+                    vote: null
+                }
+                BILLS_DROPDOWN_OPTIONS.push({ text: title, value: billId })
             }
-            BILLS_DROPDOWN_OPTIONS.push({ text: title, value: billId })
-        }
+        })
     })
-})
 
 class Senate extends React.Component {
     constructor(props) {
@@ -75,7 +84,9 @@ class Senate extends React.Component {
         if (filter && filter.type === 'candidate') {
             source = [[filter.id, OR_SENATE[filter.id]]]
         } else {
-            source = Object.entries(Object.assign({}, OR_SENATE))
+            source = Object
+                .entries(Object.assign({}, OR_SENATE))
+                .filter(([candidateId]) => CANDIDATES_OF_INTEREST.indexOf(candidateId) > -1)
         }
 
         for (let i = source.length; i--;) {
@@ -95,7 +106,7 @@ class Senate extends React.Component {
                 )
                 const candidateNodeIdx = data.nodes.length - 1
 
-                Object.entries(FOLLOW_THE_MONEY_CATEGORIES).forEach(([code, { accessKey, nameField }]) => {
+                Object.entriecandidateNodeIdxs(FOLLOW_THE_MONEY_CATEGORIES).forEach(([code, { accessKey, nameField }]) => {
                     candidate.finance[code].forEach((record) => {
                         const amount = parseFloat(record.Total_$.Total_$)
                         if (code === 'd-ccg') {
@@ -133,7 +144,7 @@ class Senate extends React.Component {
             container: this.sankeyContainer,
             data,
             size: {
-                width: 1200,
+                width: 800,
                 height: 1000
             },
             onNodeClick: this.renderSankey
@@ -179,7 +190,7 @@ class Senate extends React.Component {
                     {}
                     <div
                         ref={(c) => { this.sankeyContainer = c }}
-                        style={{ height: 'auto', width: 1200, marginTop: 50 }}
+                        style={{ height: 'auto', width: 800, marginTop: 50 }}
                     />
                 </Grid.Column>
 
