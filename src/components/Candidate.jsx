@@ -4,20 +4,40 @@ import PropTypes from 'prop-types'
 import {
     Card,
     Grid,
+    Header,
     Image,
     Segment,
     Table
 } from 'semantic-ui-react'
 
 class Candidate extends React.Component {
-    componentDidMount() {
-        const chart = c3.generate({
-            data: {
-                columns: Object.entries(this.props.finance.sector),
-                type: 'pie'
-            }
-        })
-        this.pieChartContainer.appendChild(chart.element)
+    componentDidMount() {        
+        this.sectorPieChartContainer.appendChild(
+            c3.generate({
+                data: {
+                    columns: Object.entries(this.props.finance.sector),
+                    type: 'pie'
+                }
+            }).element
+        )
+
+        this.industryPieChartContainer.appendChild(
+            c3.generate({
+                data: {
+                    columns: Object.entries(this.props.finance.industry),
+                    type: 'pie'
+                }
+            }).element
+        )
+        
+        this.topContributorsPieChartContainer.appendChild(
+            c3.generate({
+                data: {
+                    columns: Object.entries(this.props.finance.top_contributors),
+                    type: 'pie'
+                }
+            }).element
+        )
     }
 
     render() {
@@ -35,7 +55,7 @@ class Candidate extends React.Component {
                     <Grid.Column width={3}>
                         <Segment basic>
                             <Card>
-                                <Image src={photo} />
+                                <Image src={photo} fluid />
                                 <Card.Content>
                                     <Card.Header>{name}</Card.Header>
                                     <Card.Description>{office}</Card.Description>
@@ -45,7 +65,22 @@ class Candidate extends React.Component {
                     </Grid.Column>
                     <Grid.Column width={8}>
                         <Segment basic>
-                            <div ref={c => this.pieChartContainer = c} />
+                            <Header>
+                                Sector
+                            </Header>
+                            <div ref={c => this.sectorPieChartContainer = c} />
+                        </Segment>
+                        <Segment basic>
+                            <Header>
+                                Industry
+                            </Header>
+                            <div ref={c => this.industryPieChartContainer = c} />
+                        </Segment>
+                        <Segment basic>
+                            <Header>
+                                Top Contributors
+                            </Header>
+                            <div ref={c => this.topContributorsPieChartContainer = c} />
                         </Segment>
                     </Grid.Column>
                     <Grid.Column width={4}>
