@@ -55,7 +55,7 @@ class Senate extends React.Component {
             if (
                 !filter ||
                 filter.type !== 'bills' ||
-                Object.entries(bills).filter(([id, vote]) => filter.bills[id] && vote === filter.bills[id]).length
+                Object.entries(bills).filter(([billId, vote]) => filter.bills[billId] && vote === filter.bills[billId]).length
             ) {
                 data.nodes.push(
                     {
@@ -67,7 +67,11 @@ class Senate extends React.Component {
                 )
                 const candidateNodeIdx = data.nodes.length - 1
 
-                Object.entries(finance.sector).forEach(([name, value]) => {
+                let financeSectors = Object.entries(finance.sector).sort((s1, s2) => s1[1] > s2[1])
+                if (filter && filter.type === 'bills') {
+                    financeSectors = financeSectors.slice(0, 5)
+                }
+                financeSectors.forEach(([name, value]) => {
                     if (
                         !filter ||
                         filter.type !== 'sector' ||
@@ -131,6 +135,7 @@ class Senate extends React.Component {
     }
 
     render() {
+        const { candidates } = this.props.data
         const { selectedCandidate } = this.state
         return (
             <React.Fragment>
@@ -178,12 +183,20 @@ class Senate extends React.Component {
                                         onChange={(e, { value }) => this.setState({ searchedBills: value })}
                                     />
                                 </Form.Field>
-                                <Form.Field>
-                                    <Button primary onClick={this.filterByBills}>Filter</Button>
-                                </Form.Field>
                             </Form.Group>
                         </Form>
-                        <Table>
+                        <Table textAlign="center">
+                            <Table.Header>
+                                <Table.Row>
+                                    <Table.HeaderCell colSpan={2} />
+                                    <Table.HeaderCell>
+                                        <Button primary onClick={this.filterByBills}>Filter</Button>
+                                    </Table.HeaderCell>
+                                    <Table.HeaderCell colSpan={candidates.length}>
+                                        How they votes?
+                                    </Table.HeaderCell>
+                                </Table.Row>
+                            </Table.Header>
                             <Table.Header>
                                 <Table.Row>
                                     <Table.HeaderCell>
@@ -195,16 +208,21 @@ class Senate extends React.Component {
                                     <Table.HeaderCell>
                                         Vote:
                                     </Table.HeaderCell>
+                                    {candidates.map(c => (
+                                        <Table.HeaderCell key={c.id}>
+                                            {`${c.firstName} ${c.lastName}`}
+                                        </Table.HeaderCell>
+                                    ))}
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
                                 {Object
                                     .entries(this.state.bills)
                                     .filter(([billId]) => this.state.searchedBills.length === 0 || this.state.searchedBills.indexOf(billId) > -1)
-                                    .map(([billId, { billNumber, title, vote }]) => (
+                                    .map(([billId, { title, vote }]) => (
                                         <Table.Row key={billId}>
-                                            <Table.Cell>{billNumber}</Table.Cell>
-                                            <Table.Cell>{title}</Table.Cell>
+                                            <Table.Cell>{billId}</Table.Cell>
+                                            <Table.Cell textAlign="left">{title}</Table.Cell>
                                             <Table.Cell>
                                                 <Form>
                                                     <Form.Group inline>
@@ -243,6 +261,11 @@ class Senate extends React.Component {
                                                     </Form.Group>
                                                 </Form>
                                             </Table.Cell>
+                                            {candidates.map(c => (
+                                                <Table.Cell key={c.id}>
+                                                    {c.bills[billId] ? c.bills[billId] : 'No Vote'}
+                                                </Table.Cell>
+                                            ))}
                                         </Table.Row>
                                     ))}
                             </Table.Body>
