@@ -134,6 +134,20 @@ class Senate extends React.Component {
         }
     }
 
+    getVoteColor = (vote) => {
+        switch (vote) {
+            case 'Yea':
+                return 'green'
+            case 'Nay':
+                return 'red'
+            case 'Co-sponsor':
+                return 'blue'
+            case 'No Vote':
+            default:
+                return 'yellow'
+        }
+    }
+
     render() {
         const { candidates } = this.props.data
         const { selectedCandidate } = this.state
@@ -142,6 +156,7 @@ class Senate extends React.Component {
                 <Grid padded relaxed stackable>
                     <Grid.Column width={11}>
                         <Header floated="left" size="medium">Click on a candidate or donor to filter the results by that selected entity</Header>
+                        {/*
                         <Button
                             primary
                             floated="right"
@@ -150,7 +165,7 @@ class Senate extends React.Component {
                         >
                             Clear filter
                         </Button>
-                        {}
+                        */}
                         <div
                             ref={(c) => { this.sankeyContainer = c }}
                             style={{ height: 'auto', width: 800, marginTop: 50 }}
@@ -190,7 +205,7 @@ class Senate extends React.Component {
                                 <Table.Row>
                                     <Table.HeaderCell colSpan={2} />
                                     <Table.HeaderCell>
-                                        <Button primary onClick={this.filterByBills}>Filter</Button>
+                                        {/* <Button primary onClick={this.filterByBills}>Filter</Button> */}
                                     </Table.HeaderCell>
                                     <Table.HeaderCell colSpan={candidates.length}>
                                         How they votes?
@@ -205,9 +220,7 @@ class Senate extends React.Component {
                                     <Table.HeaderCell>
                                         Title
                                     </Table.HeaderCell>
-                                    <Table.HeaderCell>
-                                        Vote:
-                                    </Table.HeaderCell>
+                                    {/* <Table.HeaderCell>Vote:</Table.HeaderCell> */}
                                     {candidates.map(c => (
                                         <Table.HeaderCell key={c.id}>
                                             {`${c.firstName} ${c.lastName}`}
@@ -219,10 +232,11 @@ class Senate extends React.Component {
                                 {Object
                                     .entries(this.state.bills)
                                     .filter(([billId]) => this.state.searchedBills.length === 0 || this.state.searchedBills.indexOf(billId) > -1)
-                                    .map(([billId, { title, vote }]) => (
+                                    .map(([billId, { title }]) => (
                                         <Table.Row key={billId}>
                                             <Table.Cell>{billId}</Table.Cell>
                                             <Table.Cell textAlign="left">{title}</Table.Cell>
+                                            {/*
                                             <Table.Cell>
                                                 <Form>
                                                     <Form.Group inline>
@@ -261,8 +275,9 @@ class Senate extends React.Component {
                                                     </Form.Group>
                                                 </Form>
                                             </Table.Cell>
+                                            */}
                                             {candidates.map(c => (
-                                                <Table.Cell key={c.id}>
+                                                <Table.Cell key={c.id} style={{ backgroundColor: this.getVoteColor(c.bills[billId]) }}>
                                                     {c.bills[billId] ? c.bills[billId] : 'No Vote'}
                                                 </Table.Cell>
                                             ))}
