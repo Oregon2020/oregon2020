@@ -96,6 +96,10 @@
                     " Anheuser-Busch InBev": 10000
                 }
             },
+            "bills_in_question": [
+                "HR 5515",
+                "other bills"
+            ],
             "bills": {
                 "HR 6199": "Yea",
                 "HR 6311": "Nay",
@@ -193,6 +197,10 @@
                     " Teamsters Union": 10000
                 }
             },
+            "bills_in_question": [
+                "HR 5515",
+                "other bills"
+            ],
             "bills": {
                 "HR 6199": "Yea",
                 "HR 6311": "Nay",
@@ -290,6 +298,10 @@
                     " Clearpath Foundation": 16200
                 }
             },
+            "bills_in_question": [
+                "HR 5515",
+                "other bills"
+            ],
             "bills": {
                 "HR 6199": "Yea",
                 "HR 6311": "Yea",
@@ -386,6 +398,10 @@
                     " International Assn of Fire Fighters": 10000
                 }
             },
+            "bills_in_question": [
+                "HR 5515",
+                "other bills"
+            ],
             "bills": {
                 "HR 6199": "Yea",
                 "HR 6311": "Nay",
@@ -483,6 +499,10 @@
                     " National Beer Wholesalers Assn": 7500
                 }
             },
+            "bills_in_question": [
+                "HR 5515",
+                "other bills"
+            ],
             "bills": {
                 "HR 6199": "Yea",
                 "HR 6311": "Nay",

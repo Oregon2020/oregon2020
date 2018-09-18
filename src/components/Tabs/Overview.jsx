@@ -137,14 +137,14 @@ class Senate extends React.Component {
     getVoteColor = (vote) => {
         switch (vote) {
             case 'Yea':
-                return 'green'
+                return '#2990ea'
             case 'Nay':
-                return 'red'
+                return '#980000'
             case 'Co-sponsor':
-                return 'blue'
+                return '#d2be8f'
             case 'No Vote':
             default:
-                return 'yellow'
+                return '#4f6467'
         }
     }
 
